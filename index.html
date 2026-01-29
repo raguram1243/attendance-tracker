@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance Tracker</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>Attendance Tracker</header>
+
+<!-- Overall Attendance -->
+<div class="card overall">
+  <h1 id="overallPercent">0%</h1>
+  <div id="overallStatus" class="status-text">Enter attendance</div>
+</div>
+
+<!-- Subjects -->
+<div class="card">
+  <h3>Subjects</h3>
+
+  <div class="subject">
+    <div class="subject-name">Pathology</div>
+    <div class="inputs">
+      <input type="number" placeholder="Attended" id="p_att">
+      <input type="number" placeholder="Total" id="p_tot">
+    </div>
+    <div class="percent" id="p_pct"></div>
+  </div>
+
+  <div class="subject">
+    <div class="subject-name">Pharmacology</div>
+    <div class="inputs">
+      <input type="number" placeholder="Attended" id="ph_att">
+      <input type="number" placeholder="Total" id="ph_tot">
+    </div>
+    <div class="percent" id="ph_pct"></div>
+  </div>
+
+  <div class="subject">
+    <div class="subject-name">Microbiology</div>
+    <div class="inputs">
+      <input type="number" placeholder="Attended" id="m_att">
+      <input type="number" placeholder="Total" id="m_tot">
+    </div>
+    <div class="percent" id="m_pct"></div>
+  </div>
+</div>
+
+<!-- Today -->
+<div class="card">
+  <h3>Today’s Classes</h3>
+  <div class="today-item">
+    <span>Total classes today</span>
+    <input type="number" id="todayClasses" value="1">
+  </div>
+</div>
+
+<button class="action-btn" id="skipBtn">
+  INAIKI COLLEGE CUT ADIKALAMA?
+</button>
+
+<!-- JS -->
+<script src="script.js"></script>
+</body>
+</html>
