@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setup Timetable</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>Setup Your Timetable</header>
+
+<!-- Academic Info -->
+<div class="card">
+  <h3>Academic Details</h3>
+
+  <label>Course / Year</label>
+  <input type="text" id="courseName" placeholder="MBBS Phase II">  
+
+  <label>Phase Start Date</label>
+  <input type="date" id="startDate">
+</div>
+
+<!-- Subjects -->
+<div class="card">
+  <h3>Subjects</h3>
+
+  <div id="subjectsContainer">
+    
+  </div>
+
+  <button class="secondary-btn" id="addSubjectBtn">
+    + Add Subject
+  </button>
+</div>
+  
+
+<!-- Clinical Postings -->
+<div class="card">
+  <h3>Clinical Postings</h3>
+
+<label>Days per week</label>
+<input type="number" id="clinicalDays" placeholder="e.g. 5">
+
+<label>Hours per day</label>
+<input type="number" id="clinicalHours" placeholder="e.g. 3">
+
+
+  <label>Minimum Attendance %</label>
+  <input type="number" id="clinicalMinPercent" value="75">
+
+</div>
+
+<!-- Attendance Rules -->
+<div class="card">
+  <h3>Attendance Rules</h3>
+
+  <label>Default minimum attendance %</label>
+  <input type="number" class="min-percent" value="75">
+
+</div>
+
+<!-- Save -->
+<button class="action-btn" id="saveSetupBtn">
+  Save & Go to Attendance Tracker →
+</button>
+
+<script src="setup.js"></script>
+
+</body>
+
+</html>

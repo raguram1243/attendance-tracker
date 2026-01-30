@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance Tracker</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header id="courseHeader">Attendance Tracker</header>
+
+<div class="edit-setup-wrapper">
+    <button id="editSetupBtn" class="secondary-btn">
+      ← Edit Setup
+    </button>
+  </div>
+  
+<!-- Overall Status -->
+<div class="card overall">
+    <div>
+      <div id="overallPercent">0%</div>
+      <div class="percent-label">Overall Attendance</div>
+      <div class="progress" id="overallBar"><div></div></div>
+    </div>
+  
+    <div style="margin-top:14px">
+      <div id="subjectsPercent">0%</div>
+      <div class="percent-label">Subjects Only</div>
+      <div class="progress" id="subjectsBar"><div></div></div>
+    </div>
+  
+    <div id="overallStatus">Enter attendance</div>
+  </div>
+  
+</div>
+
+<!-- Subjects Attendance -->
+<div class="card">
+  <h3>Subjects</h3>
+
+  <div id="subjectsTracker">
+    <!-- Subject trackers will be injected by JS -->
+  </div>
+</div>
+
+<!-- Clinical Postings -->
+<div class="card">
+    <h3>Clinical Postings</h3>
+  
+    <div class="inputs">
+      <input type="number" id="clinicalAttended" placeholder="Attended">
+  
+      <div class="total-box">
+
+        <input type="number"
+       id="clinicalTotal"
+       class="total-input"
+       data-type="clinical-total"
+       value="0">
+      
+      </div>
+      
+    </div>
+  
+    <div class="percent" id="clinicalPercent"></div>
+    <div class="progress" id="clinicalBar">
+        <div></div>
+      </div>
+      
+  </div>
+  
+
+<!-- Action -->
+<button class="action-btn" id="skipBtn">
+  INAIKI COLLEGE CUT ADIKALAMA?
+</button>
+
+<!-- JS -->
+<script src="tracker.js"></script>
+</body>
+</html>
+
