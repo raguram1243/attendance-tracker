@@ -7,6 +7,25 @@ const subjectsContainer = document.getElementById("subjectsContainer");
 const addSubjectBtn = document.getElementById("addSubjectBtn");
 const saveSetupBtn = document.getElementById("saveSetupBtn");
 
+// ===============================
+// Dark Mode Toggle
+// ===============================
+const toggleBtn = document.getElementById("themeToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+  toggleBtn && (toggleBtn.textContent = "☀️");
+}
+
+toggleBtn?.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+  toggleBtn.textContent = isDark ? "☀️" : "🌙";
+});
+
+
 // -------------------------------
 // Helpers
 // -------------------------------
@@ -21,22 +40,29 @@ function getDefaultMinPercent() {
 function createSubjectCard() {
   const card = document.createElement("div");
   card.className = "subject-card";
-
+  const uid = crypto.randomUUID();
   const defaultMin = getDefaultMinPercent();
 
   card.innerHTML = `
     <label>Subject Name</label>
     <input type="text" class="subject-name" placeholder="e.g. Pathology">
 
-    <label>
-      <input type="checkbox" class="has-practical" checked>
-      This subject has practicals
-    </label>
+    <div class="checkbox-row">
+    <span class="no-practical-badge hidden">No practicals</span>
+    <input type="checkbox" class="has-practical" checked id="hasPractical-${uid}">
+    <label for="hasPractical-${uid}">This subject has practicals</label>
+    </div>
+
+
 
     <div class="inputs">
       <input type="number" class="theory-per-week" placeholder="Theory / week">
-      <input type="number" class="practical-per-week practical-input"
-             placeholder="Practical / week">
+      <div class="practical-wrapper open">
+        <input type="number"
+         class="practical-per-week"
+         placeholder="Practical / week">
+</div>
+
     </div>
 
     <label>Minimum Attendance %</label>
@@ -48,10 +74,20 @@ function createSubjectCard() {
   const practicalCheckbox = card.querySelector(".has-practical");
   const practicalInput = card.querySelector(".practical-input");
 
+  const practicalWrapper = card.querySelector(".practical-wrapper");
+
+  const badge = card.querySelector(".no-practical-badge");
+
   practicalCheckbox.addEventListener("change", () => {
-    practicalInput.style.display = practicalCheckbox.checked ? "block" : "none";
-    if (!practicalCheckbox.checked) practicalInput.value = "";
+    practicalWrapper.classList.toggle("open", practicalCheckbox.checked);
+    badge.classList.toggle("hidden", practicalCheckbox.checked);
+  
+    if (!practicalCheckbox.checked) {
+      practicalWrapper.querySelector("input").value = "";
+    }
   });
+  
+
 
   card.querySelector(".danger-btn").addEventListener("click", () => {
     if (subjectsContainer.children.length > 1) {

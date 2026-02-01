@@ -8,6 +8,25 @@ if (!setupData) {
 }
 
 // ===============================
+// Dark Mode Toggle
+// ===============================
+const toggleBtn = document.getElementById("themeToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+  toggleBtn && (toggleBtn.textContent = "☀️");
+}
+
+toggleBtn?.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+  toggleBtn.textContent = isDark ? "☀️" : "🌙";
+});
+
+
+// ===============================
 // Helpers
 // ===============================
 const $ = q => document.querySelector(q);
@@ -51,10 +70,16 @@ const overallStatusEl = $("#overallStatus");
 const subjectsPercentEl = $("#subjectsPercent");
 const overallBar = $("#overallBar");
 const subjectsBar = $("#subjectsBar");
-
+const clinicalBar = $("#clinicalBar");
+const clinicalNeedEl = $("#clinicalNeed");
 const clinicalAtt = $("#clinicalAttended");
 const clinicalTot = $("#clinicalTotal");
 const clinicalPctEl = $("#clinicalPercent");
+
+
+$("#editSetupBtn")?.addEventListener("click", () => {
+  window.location.href = "setup.html";
+});
 
 // ===============================
 // Render Subjects
@@ -80,7 +105,18 @@ function renderSubjects() {
       <small>Theory</small>
       <div class="inputs">
         <input type="number" data-i="${i}" data-t="theory-att">
-        <input type="number" data-i="${i}" data-t="theory-tot" value="${theoryTotal}">
+        <div class="total-box">
+  <input type="number"
+         class="total-input"
+         data-i="${i}"
+         data-t="theory-tot"
+         value="${theoryTotal}"
+         readonly>
+
+  <button class="edit-btn" type="button">✏️</button>
+</div>
+
+
 
       </div>
       <div class="percent" id="tPct-${i}"></div>
@@ -93,7 +129,18 @@ function renderSubjects() {
         <small>Practical</small>
         <div class="inputs">
           <input type="number" data-i="${i}" data-t="p-att">
-          <input type="number" data-i="${i}" data-t="p-tot" value="${practicalTotal}">
+          <div class="total-box">
+  <input type="number"
+         class="total-input"
+         data-i="${i}"
+         data-t="p-tot"
+         value="${practicalTotal}"
+         readonly>
+
+  <button class="edit-btn" type="button">✏️</button>
+</div>
+
+
           </div>
         <div class="percent" id="pPct-${i}"></div>
         <div class="need" id="pNeed-${i}"></div>
@@ -203,13 +250,33 @@ function updateBlock(prefix, i, pct, att, tot, min) {
 }
 
 function updateClinical(pct, att, tot) {
+  const fill = clinicalBar.querySelector("div");
+
   if (pct === null) {
     clinicalPctEl.textContent = "";
+    clinicalNeedEl.textContent = "";
+    clinicalBar.className = "progress";
+    fill.style.width = "0%";
     return;
   }
+
   clinicalPctEl.textContent = pct.toFixed(1) + "%";
   clinicalPctEl.className = "percent " + color(pct);
+
+  clinicalBar.className = "progress " + color(pct);
+  fill.style.width = pct + "%";
+
+  const need = classesNeeded(att, tot, setupData.clinical.minPercent);
+  if (need === 0) {
+    clinicalNeedEl.textContent = "Safe ✔";
+    clinicalNeedEl.className = "need safe";
+  } else {
+    clinicalNeedEl.textContent = `Need ${need} days`;
+    clinicalNeedEl.className = "need warn";
+  }
 }
+
+
 
 function updateOverall(subjects, overall) {
   if (!overall.length) {
@@ -235,6 +302,21 @@ function updateOverall(subjects, overall) {
     subjectsBar.firstChild.style.width = s + "%";
   }
 }
+
+
+document.addEventListener("click", e => {
+  if (!e.target.classList.contains("edit-btn")) return;
+
+  const input = e.target.previousElementSibling;
+  input.removeAttribute("readonly");
+  input.focus();
+
+  input.addEventListener(
+    "blur",
+    () => input.setAttribute("readonly", true),
+    { once: true }
+  );
+});
 
 // ===============================
 // Init

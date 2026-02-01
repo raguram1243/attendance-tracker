@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Attendance Tracker</title>
-
+  <header id="courseHeader" class="app-header">
+    <span>Attendance Tracker</span>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+      🌙
+    </button>
+  </header>
+  
+  
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header id="courseHeader">Attendance Tracker</header>
 
 <div class="edit-setup-wrapper">
     <button id="editSetupBtn" class="secondary-btn">
@@ -53,18 +58,21 @@
       <input type="number" id="clinicalAttended" placeholder="Attended">
   
       <div class="total-box">
-
         <input type="number"
-       id="clinicalTotal"
-       class="total-input"
-       data-type="clinical-total"
-       value="0">
+               id="clinicalTotal"
+               class="total-input"
+               readonly>
+      
+        <button class="edit-btn" type="button">✏️</button>
+      </div>
+      
       
       </div>
       
     </div>
   
     <div class="percent" id="clinicalPercent"></div>
+    <div class="need" id="clinicalNeed"></div>
     <div class="progress" id="clinicalBar">
         <div></div>
       </div>
