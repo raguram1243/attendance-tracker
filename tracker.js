@@ -95,6 +95,39 @@ function openTodaySelector() {
 
   document.getElementById("skipModal").classList.remove("hidden");
 }
+// ===============================
+// Daily GIF Selector
+// ===============================
+const safeGifs = [
+  "assets/safe/safe1.gif",
+  "assets/safe/safe2.gif",
+  "assets/safe/safe3.gif"
+];
+
+const riskyGifs = [
+  "assets/risky/risky1.gif",
+  "assets/risky/risky2.gif",
+  "assets/risky/risky3.gif"
+];
+
+function getDailyGif(list, key) {
+  const today = new Date().toDateString();
+  const stored = localStorage.getItem(key);
+
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    if (parsed.date === today) return parsed.gif;
+  }
+
+  const gif = list[Math.floor(Math.random() * list.length)];
+
+  localStorage.setItem(
+    key,
+    JSON.stringify({ date: today, gif })
+  );
+
+  return gif;
+}
 
 
 function showSkipResult(type, message) {
@@ -110,13 +143,18 @@ function showSkipResult(type, message) {
   
   if (type === "safe") {
     card.classList.add("result-safe");
+  
+    gif.src = safeGifs[Math.floor(Math.random() * safeGifs.length)];
+    gif.style.display = "block";
+  
     launchConfetti();
   }
+  
   
   if (type === "warn") {
     card.classList.add("result-warn");
   
-    gif.src = "assets/risky.gif";   // ⚠️ your risky GIF
+    gif.src = riskyGifs[Math.floor(Math.random() * riskyGifs.length)];
     gif.style.display = "block";
   }
   
@@ -124,7 +162,7 @@ function showSkipResult(type, message) {
     card.classList.add("result-danger");
     dangerFlash();
   
-    gif.src = "assets/danger.gif";  // ❌ your danger GIF
+    gif.src = "assets/danger.gif";
     gif.style.display = "block";
   }
   
