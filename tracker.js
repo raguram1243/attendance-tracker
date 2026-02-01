@@ -304,7 +304,9 @@ function updateBlock(prefix, i, pct, att, tot, min) {
   pctEl.classList.add("pop");
 
   pctEl.className = "percent " + color(pct);
-  bar.className = "progress " + color(pct);
+  bar.classList.remove("green", "yellow", "red");
+  bar.classList.add("progress", color(pct));
+
   bar.firstChild.style.width = pct + "%";
 
   const need = classesNeeded(Number(att), tot, min);
@@ -371,6 +373,7 @@ function updateClinical(pct, att, tot) {
     clinicalNeedEl.textContent = `Need ${need} days`;
     clinicalNeedEl.className = "need warn";
   }
+
   if (Math.abs(prev - pct) > 0.1) {
     clinicalBar.classList.remove("progress-glow");
     void clinicalBar.offsetWidth;
@@ -427,7 +430,9 @@ function updateOverall(subjects, overall) {
   overallStatusEl.textContent =
     o >= 75 ? "Eligible for University Exam ✅" : "Attendance Shortage ⚠️";
 
-  overallBar.className = "progress " + color(o);
+    overallBar.classList.remove("green", "yellow", "red");
+    overallBar.classList.add("progress", color(o));
+    
   overallBar.firstChild.style.width = o + "%";
 
   if (subjects.length) {
@@ -439,7 +444,8 @@ function updateOverall(subjects, overall) {
     void subjectsPercentEl.offsetWidth;
     subjectsPercentEl.classList.add("pop");
 
-    subjectsBar.className = "progress " + color(s);
+    subjectsBar.classList.remove("green", "yellow", "red");
+    subjectsBar.classList.add("progress", color(s));
     subjectsBar.firstChild.style.width = s + "%";
 
     if (Math.abs(prevSub - s) > 0.1) {

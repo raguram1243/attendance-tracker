@@ -516,8 +516,10 @@ header.app-header {
   font-weight: 600;
 }
 .progress {
-  margin-top: 6px;
+  margin-top: 8px;
   margin-bottom: 10px;
+  width: 100%;
+
 }
 @media (max-width: 480px) {
   .checkbox-row {
