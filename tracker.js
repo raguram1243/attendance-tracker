@@ -60,6 +60,14 @@ function clampTotal(att, tot) {
   return tot;
 }
 
+function maxMissable(att, tot, min) {
+  if (att === null || tot === 0) return 0;
+  const m = min / 100;
+  const miss = Math.floor((att - m * tot) / m);
+  return miss > 0 ? miss : 0;
+}
+
+
 
 // ===============================
 // Elements
@@ -121,6 +129,7 @@ function renderSubjects() {
       </div>
       <div class="percent" id="tPct-${i}"></div>
       <div class="need" id="tNeed-${i}"></div>
+      <div class="can-miss" id="tMiss-${i}"></div>
       <div class="progress" id="tBar-${i}"><div></div></div>
 
       ${
@@ -144,6 +153,7 @@ function renderSubjects() {
           </div>
         <div class="percent" id="pPct-${i}"></div>
         <div class="need" id="pNeed-${i}"></div>
+        <div class="can-miss" id="pMiss-${i}"></div>
         <div class="progress" id="pBar-${i}"><div></div></div>
       `
           : ""
@@ -247,6 +257,18 @@ function updateBlock(prefix, i, pct, att, tot, min) {
     needEl.textContent = `Need ${need} classes`;
     needEl.className = "need";
   }
+
+  const missEl = document.getElementById(`${prefix}Miss-${i}`);
+const miss = maxMissable(att, tot, min);
+
+if (missEl) {
+  if (miss > 0) {
+    missEl.textContent = `You can miss ${miss} classes`;
+  } else {
+    missEl.textContent = "";
+  }
+}
+
 }
 
 function updateClinical(pct, att, tot) {
@@ -274,6 +296,17 @@ function updateClinical(pct, att, tot) {
     clinicalNeedEl.textContent = `Need ${need} days`;
     clinicalNeedEl.className = "need warn";
   }
+  const missEl = document.getElementById("clinicalMiss");
+const miss = maxMissable(att, tot, setupData.clinical.minPercent);
+
+if (missEl) {
+  if (miss > 0) {
+    missEl.textContent = `You can miss ${miss} days`;
+  } else {
+    missEl.textContent = "";
+  }
+}
+
 }
 
 

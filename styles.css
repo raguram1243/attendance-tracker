@@ -323,11 +323,13 @@
 }
 
 body.dark {
-  --bg: #0f172a;
-  --card: #111827;
+  --bg: #0b1220;            /* deep navy */
+  --card: #111a2e;          /* lifted card */
+  --card-soft: #0f172a;
   --text: #e5e7eb;
   --muted: #9ca3af;
-  --border: #1f2937;
+  --border: rgba(255,255,255,0.08);
+
 }
 
 /* apply variables */
@@ -539,7 +541,88 @@ body {
   }
 }
 
+/* =========================
+   DARK MODE – REFINED
+   ========================= */
 
+   body.dark {
+    --bg: #0b1220;            /* deep navy */
+    --card: #111a2e;          /* lifted card */
+    --card-soft: #0f172a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --border: rgba(255,255,255,0.08);
+  }
+  
+  /* background */
+  body.dark {
+    background: linear-gradient(180deg, #0b1220, #020617);
+    color: var(--text);
+  }
+  
+  /* cards */
+  body.dark .card {
+    background: linear-gradient(
+      180deg,
+      #111a2e,
+      #0b1220
+    );
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  
+  /* subject cards slightly lifted */
+  body.dark .subject-card {
+    background: linear-gradient(
+      180deg,
+      #111827,
+      #0b1220
+    );
+  }
+  
+  /* inputs */
+  body.dark input {
+    background: #020617;
+    border-color: rgba(255,255,255,0.12);
+    color: #e5e7eb;
+  }
+  
+  body.dark input::placeholder {
+    color: #6b7280;
+  }
+  
+  /* readonly totals */
+  body.dark .total-input[readonly] {
+    background: #020617;
+    opacity: 0.85;
+  }
+  
+  /* progress bar background */
+  body.dark .progress {
+    background: rgba(255,255,255,0.12);
+  }
+  
+  /* section titles */
+  body.dark h3 {
+    color: #f9fafb;
+  }
+  
+  /* Safe / Warning colors – richer */
+  body.dark .green { color: #22c55e; }
+  body.dark .yellow { color: #facc15; }
+  body.dark .red { color: #f87171; }
+  
+  .can-miss {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    color: #60a5fa;
+  }
+  
+  body.dark .can-miss {
+    color: #93c5fd;
+  }
+  
 
  
   
