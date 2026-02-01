@@ -36,15 +36,14 @@ function triggerGlow(bar) {
   void bar.offsetWidth; // force reflow
   bar.classList.add("progress-glow");
 }
+function safePercent(att, tot) {
+  if (att === null || tot === null || tot === 0) return null;
+  return Math.min((att / tot) * 100, 100);
+}
 
 
 function weeksBetween(start, end) {
   return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7)));
-}
-
-function percent(att, tot) {
-  if (att === null || tot === 0) return null;
-  return Math.min((att / tot) * 100, 100);
 }
 
 function color(p) {
@@ -175,8 +174,12 @@ function renderSubjects() {
           ? `
         <small>Practical</small>
         <div class="inputs">
-          <input type="number" data-i="${i}" data-t="p-att">
-          <div class="total-box">
+        <div class="stepper" data-i="${i}" data-t="p-att">
+        <button class="minus">−</button>
+        <input type="number">
+        <button class="plus">+</button>
+      </div>
+      <div class="total-box">
   <input type="number"
          class="total-input"
          data-i="${i}"
@@ -214,23 +217,33 @@ function calculate() {
     let parts = [];
 
     // THEORY
-    const tAttInput = $(`[data-i="${i}"][data-t="theory-att"]`);
-    const tTotInput = $(`[data-i="${i}"][data-t="theory-tot"]`);
+   const tTotInput = $(`[data-i="${i}"][data-t="theory-tot"]`);
 
-    const tAtt = tAttInput.value === "" ? null : Number(tAttInput.value);
+    const tAttInput = document.querySelector(
+      `.stepper[data-i="${i}"][data-t="theory-att"] input`
+    );
+    
+    const tAtt =
+      !tAttInput || tAttInput.value === ""
+        ? null
+        : Number(tAttInput.value);
+    
     let tTot = Number(tTotInput.value);
 
     tTot = clampTotal(tAtt, tTot);
     tTotInput.value = tTot;
 
-    const tPct = percent(tAtt === "" ? null : Number(tAtt), tTot);
+    const tPct = safePercent(tAtt === "" ? null : Number(tAtt), tTot);
 
     updateBlock(`t`, i, tPct, tAtt, tTot, s.minPercent);
     if (tPct !== null) parts.push(tPct);
 
     // PRACTICAL
     if (s.hasPractical) {
-      const pAttInput = $(`[data-i="${i}"][data-t="p-att"]`);
+      const pAttInput = document.querySelector(
+        `.stepper[data-i="${i}"][data-t="p-att"] input`
+      );
+      
       const pTotInput = $(`[data-i="${i}"][data-t="p-tot"]`);
 
       const pAtt = pAttInput.value === "" ? null : Number(pAttInput.value);
@@ -239,7 +252,7 @@ function calculate() {
       pTot = clampTotal(pAtt, pTot);
       pTotInput.value = pTot;
 
-      const pPct = percent(pAtt === "" ? null : Number(pAtt), pTot);
+      const pPct = safePercent(pAtt === "" ? null : Number(pAtt), pTot);
 
       updateBlock(`p`, i, pPct, pAtt, pTot, s.minPercent);
       if (pPct !== null) parts.push(pPct);
@@ -259,7 +272,7 @@ function calculate() {
     cTot = clampTotal(cAtt, cTot);
     clinicalTot.value = cTot;
 
-  const cPct = percent(cAtt, cTot);
+  const cPct = safePercent(cAtt, cTot);
 
   if (cPct !== null) overallAvgs.push(cPct);
   updateClinical(cPct, cAtt, cTot);
@@ -297,7 +310,15 @@ function updateBlock(prefix, i, pct, att, tot, min) {
     needEl.textContent = "";
     return;
   }
-
+  if (att === null || tot === 0) {
+    pctEl.textContent = "";
+    bar.className = "progress";
+    bar.firstChild.style.width = "0%";
+    needEl.textContent = "Enter attendance";
+    needEl.className = "need";
+    return;
+  }
+  
   const prevVal = parseFloat(pctEl.textContent) || 0;
   triggerGlow(bar);
 
@@ -379,12 +400,7 @@ function updateClinical(pct, att, tot) {
     clinicalNeedEl.className = "need warn";
   }
 
-  if (Math.abs(prev - pct) > 0.1) {
-    clinicalBar.classList.remove("progress-glow");
-    void clinicalBar.offsetWidth;
-    clinicalBar.classList.add("progress-glow");
-  }
-  
+  triggerGlow(clinicalBar);
   if (
     pct !== null &&
     classesNeeded(att, tot, setupData.clinical.minPercent) === 0 &&
@@ -439,7 +455,7 @@ function updateOverall(subjects, overall) {
     overallBar.classList.add("progress", color(o));
     
   overallBar.firstChild.style.width = o + "%";
-
+  triggerGlow(overallBar);
   if (subjects.length) {
     const s = subjects.reduce((a, b) => a + b, 0) / subjects.length;
     const prevSub = parseFloat(subjectsPercentEl.textContent) || 0;
@@ -452,6 +468,7 @@ function updateOverall(subjects, overall) {
     subjectsBar.classList.remove("green", "yellow", "red");
     subjectsBar.classList.add("progress", color(s));
     subjectsBar.firstChild.style.width = s + "%";
+    triggerGlow(subjectsBar);
 
     if (Math.abs(prevSub - s) > 0.1) {
       subjectsBar.classList.remove("progress-glow");
@@ -534,18 +551,15 @@ document.addEventListener("click", e => {
   calculate();
 });
 
-
 function haptic(type = "light") {
   if (!("vibrate" in navigator)) return;
+  if (!document.hasFocus()) return;
 
-  const patterns = {
-    light: 10,
-    medium: 20,
-    heavy: 30
-  };
-
-  navigator.vibrate(patterns[type] || 10);
+  navigator.vibrate(
+    { light: 10, medium: 20, heavy: 30 }[type] || 10
+  );
 }
+
 
 // ===============================
 // Init
