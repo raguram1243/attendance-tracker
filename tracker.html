@@ -88,7 +88,12 @@
     <h3>Clinical Postings</h3>
   
     <div class="inputs">
-      <input type="number" id="clinicalAttended" placeholder="Attended">
+      <div class="stepper clinical-stepper" data-t="c-att">
+        <button class="minus">−</button>
+        <input type="number" id="clinicalAttended" />
+        <button class="plus">+</button>
+      </div>
+      
   
       <div class="total-box">
         <input type="number"
