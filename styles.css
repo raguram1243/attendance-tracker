@@ -27,6 +27,7 @@
     padding: 14px;
     margin-bottom: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
   }
   
   h3 {
@@ -864,4 +865,11 @@ button:active,
   transform: translateX(-50%) translateY(0);
 }
 
-  
+.scrub {
+  cursor: ns-resize;
+  touch-action: pan-x;
+}
+
+.scrub:active {
+  opacity: 0.85;
+}

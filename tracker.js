@@ -31,6 +31,12 @@ toggleBtn?.addEventListener("click", () => {
 // Helpers
 // ===============================
 const $ = q => document.querySelector(q);
+function triggerGlow(bar) {
+  bar.classList.remove("progress-glow");
+  void bar.offsetWidth; // force reflow
+  bar.classList.add("progress-glow");
+}
+
 
 function weeksBetween(start, end) {
   return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7)));
@@ -139,7 +145,12 @@ function renderSubjects() {
 
       <small>Theory</small>
       <div class="inputs">
-        <input type="number" data-i="${i}" data-t="theory-att">
+        <div class="stepper" data-i="${i}"data-t="theory-att">
+        <button class="minus">−</button>
+        <input type="number">
+        <button class="plus">+</button>
+        </div>
+
         <div class="total-box">
   <input type="number"
          class="total-input"
@@ -288,13 +299,7 @@ function updateBlock(prefix, i, pct, att, tot, min) {
   }
 
   const prevVal = parseFloat(pctEl.textContent) || 0;
-  if (Math.abs(prevVal - pct) > 0.1) {
-    bar.classList.remove("progress-glow");
-    void bar.offsetWidth;
-    bar.classList.add("progress-glow");
-  }
-  
-
+  triggerGlow(bar);
 
   const prev = parseFloat(pctEl.textContent) || 0;
   animateNumber(pctEl, prev, pct);
@@ -514,6 +519,20 @@ function showDailyReminderIfNeeded() {
   }
 }
 
+document.addEventListener("click", e => {
+  const stepper = e.target.closest(".stepper");
+  if (!stepper) return;
+
+  const input = stepper.querySelector("input");
+  let val = Number(input.value || 0);
+
+  if (e.target.classList.contains("plus")) val++;
+  if (e.target.classList.contains("minus")) val = Math.max(0, val - 1);
+
+  input.value = val;
+  haptic("light");
+  calculate();
+});
 
 
 function haptic(type = "light") {
