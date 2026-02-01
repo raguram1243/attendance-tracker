@@ -7,17 +7,20 @@
 </head>
 <body>
 
-<script>
-  const setup = localStorage.getItem("attendanceSetup");
-
-  if (setup) {
-    // User already completed setup
-    window.location.replace("tracker.html");
-  } else {
-    // First time user
-    window.location.replace("setup.html");
-  }
-</script>
+  <script>
+    try {
+      const setup = JSON.parse(localStorage.getItem("attendanceSetup"));
+      if (setup && setup.subjects?.length) {
+        location.replace("tracker.html");
+      } else {
+        localStorage.removeItem("attendanceSetup");
+        location.replace("setup.html");
+      }
+    } catch {
+      localStorage.removeItem("attendanceSetup");
+      location.replace("setup.html");
+    }
+  </script>
 
 </body>
 </html>
