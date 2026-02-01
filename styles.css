@@ -9,7 +9,7 @@
       Roboto, Ubuntu, sans-serif;
       min-height: 100vh;
       overflow-y: auto;
-      padding-bottom: 110px;
+      padding-bottom: 90px;
   }
   
   header {
@@ -265,7 +265,7 @@
   .progress > div {
     height: 100%;
     width: 0%;
-    transition: width 0.4s ease;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .progress.green > div { background: #16a34a; }
@@ -685,7 +685,7 @@ body {
   inset: 0;
   background-color: #cbd5e1;
   border-radius: 999px;
-  transition: 0.2s;
+  transition: background-color 0.25s ease;
 }
 
 .slider::before {
@@ -697,7 +697,7 @@ body {
   top: 3px;
   background-color: white;
   border-radius: 50%;
-  transition: 0.2s;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .switch input:checked + .slider {
@@ -708,11 +708,17 @@ body {
   transform: translateX(20px);
 }
 
+.reminder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .reminder-time {
   margin-top: 8px;
   display: flex;
-  gap: 12px;
-  font-size: 12px;
+  gap: 10px;
+  font-size: 10px;
 }
 
 .reminder-time label {
@@ -720,7 +726,41 @@ body {
   align-items: center;
   gap: 4px;
 }
+/* pill-style radio buttons */
+.radio-pill {
+  flex: 1;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: 
+  background-color 0.2s ease,
+  transform 0.15s ease;
+}
 
+.radio-pill:active {
+  transform: scale(0.96);
+}
+.radio-pill input {
+  display: none;
+}
+
+.radio-pill input:checked + span {
+  color: #fff;
+}
+
+.radio-pill input:checked + span::before {
+  content: "";
+}
+
+.radio-pill input:checked ~ span,
+.radio-pill:has(input:checked) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
 .need.warn {
   color: #f97316;
   font-weight: 600;
@@ -739,7 +779,87 @@ body {
   font-size: 12px;
 }
 
- 
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card {
+  animation: cardIn 0.35s ease-out both;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pct {
+  animation: pop 0.25s ease;
+}
+
+button,
+.cta {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:active,
+.cta:active {
+  transform: scale(0.97);
+}
   
-  
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes pctPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.percent.pop {
+  animation: pctPop 0.25s ease;
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  50% { box-shadow: 0 0 8px currentColor; }
+  100% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+}
+
+.progress-glow {
+  animation: glowPulse 0.6s ease;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 1000;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
   

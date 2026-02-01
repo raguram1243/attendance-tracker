@@ -2,30 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <header id="courseHeader" class="app-header">
-    <span>Attendance Tracker</span>
-    <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-      🌙
-    </button>
-  </header>
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
   <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#020617">
 
   <link rel="stylesheet" href="styles.css">
 </head>
+<header id="courseHeader" class="app-header">
+  <span>Attendance Tracker</span>
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+    🌙
+  </button>
+</header>
+<div id="toast" class="toast"></div>
+
 <body>
 
 
-<div class="edit-setup-wrapper">
+  <div class="edit-setup-wrapper">
     <button id="editSetupBtn" class="secondary-btn">
       ← Edit Setup
     </button>
   </div>
   
-<!-- Overall Status -->
-<div class="card overall">
+  <!-- Overall Status -->
+  <div class="card overall">
     <div>
       <div id="overallPercent">0%</div>
       <div class="percent-label">Overall Attendance</div>
@@ -41,47 +42,49 @@
     <div id="overallStatus">Enter attendance</div>
     
     <div class="reminder-row">
-      <div class="reminder-text">
-        <div class="reminder-title">🔔 Daily Attendance Reminder</div>
-        <div class="reminder-sub">Shows reminder when app is opened</div>
-      </div>
+      <div class="reminder-header">
+        <div>
+          <div class="reminder-title">🔔 Daily Attendance Reminder</div>
+          <div class="reminder-sub">Shows reminder when app is opened</div>
+        </div>
     
-      <div class="reminder-controls">
         <label class="switch">
           <input type="checkbox" id="dailyReminderToggle">
           <span class="slider"></span>
         </label>
+      </div>
     
-        <div class="reminder-time">
-          <label>
-            <input type="radio" name="reminderTime" value="morning" checked>
-            Morning
-          </label>
-          <label>
-            <input type="radio" name="reminderTime" value="evening">
-            Evening
-          </label>
-        </div>
+      <div class="reminder-time">
+        <label class="radio-pill">
+          <input type="radio" name="reminderTime" value="morning">
+          <span>🌅 Morning</span>
+        </label>
+    
+        <label class="radio-pill">
+          <input type="radio" name="reminderTime" value="evening">
+          <span>🌙 Evening</span>
+        </label>
       </div>
     </div>
     
     
+    
+    </div>
+  
+  
   </div>
-  
-  
-</div>
 
-<!-- Subjects Attendance -->
-<div class="card">
-  <h3>Subjects</h3>
+  <!-- Subjects Attendance -->
+  <div class="card">
+    <h3>Subjects</h3>
 
-  <div id="subjectsTracker">
+    <div id="subjectsTracker">
     <!-- Subject trackers will be injected by JS -->
+    </div>
   </div>
-</div>
 
-<!-- Clinical Postings -->
-<div class="card">
+  <!-- Clinical Postings -->
+  <div class="card">
     <h3>Clinical Postings</h3>
   
     <div class="inputs">
@@ -111,14 +114,14 @@
   </div>
   
 
-<!-- Action -->
-<button class="action-btn" id="skipBtn">
+  <!-- Action -->
+  <button class="action-btn" id="skipBtn">
   INAIKI COLLEGE CUT ADIKALAMA?
-</button>
+  </button>
 
-<!-- JS -->
+  <!-- JS -->
 
-<script src="tracker.js"></script>
+  <script src="tracker.js"></script>
 </body>
 </html>
 

@@ -3,7 +3,7 @@
 // ===============================
 const setupData = JSON.parse(localStorage.getItem("attendanceSetup"));
 if (!setupData) {
-  alert("No setup found. Redirecting.");
+  showToast("No setup found. Redirecting.");
   window.location.href = "setup.html";
 }
 
@@ -74,6 +74,15 @@ function willSkippingTodayBeDanger(att, tot, min) {
   return pctIfSkipped < min;
 }
 
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  if (!t) return;
+
+  t.textContent = msg;
+  t.classList.add("show");
+
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
 
 
 // ===============================
@@ -188,6 +197,7 @@ function renderSubjects() {
 function calculate() {
   let subjectAvgs = [];
   let overallAvgs = [];
+  haptic("light");
 
   setupData.subjects.forEach((s, i) => {
     let parts = [];
@@ -249,6 +259,21 @@ function calculate() {
 // ===============================
 // UI Helpers
 // ===============================
+function animateNumber(el, from, to, duration = 400) {
+  const start = performance.now();
+
+  function frame(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const value = from + (to - from) * progress;
+    el.textContent = value.toFixed(1) + "%";
+
+    if (progress < 1) requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+
 function updateBlock(prefix, i, pct, att, tot, min) {
   const pctEl = $(`#${prefix}Pct-${i}`);
   const bar = $(`#${prefix}Bar-${i}`);
@@ -262,7 +287,22 @@ function updateBlock(prefix, i, pct, att, tot, min) {
     return;
   }
 
-  pctEl.textContent = pct.toFixed(1) + "%";
+  const prevVal = parseFloat(pctEl.textContent) || 0;
+  if (Math.abs(prevVal - pct) > 0.1) {
+    bar.classList.remove("progress-glow");
+    void bar.offsetWidth;
+    bar.classList.add("progress-glow");
+  }
+  
+
+
+  const prev = parseFloat(pctEl.textContent) || 0;
+  animateNumber(pctEl, prev, pct);
+
+  pctEl.classList.remove("pop");
+  void pctEl.offsetWidth; // force reflow
+  pctEl.classList.add("pop");
+
   pctEl.className = "percent " + color(pct);
   bar.className = "progress " + color(pct);
   bar.firstChild.style.width = pct + "%";
@@ -310,7 +350,14 @@ function updateClinical(pct, att, tot) {
     return;
   }
 
-  clinicalPctEl.textContent = pct.toFixed(1) + "%";
+  const prev = parseFloat(clinicalPctEl.textContent) || 0;
+  animateNumber(clinicalPctEl, prev, pct);
+
+  clinicalPctEl.classList.remove("pop");
+  void clinicalPctEl.offsetWidth;
+  clinicalPctEl.classList.add("pop");
+
+
   clinicalPctEl.className = "percent " + color(pct);
 
   clinicalBar.className = "progress " + color(pct);
@@ -324,7 +371,12 @@ function updateClinical(pct, att, tot) {
     clinicalNeedEl.textContent = `Need ${need} days`;
     clinicalNeedEl.className = "need warn";
   }
-
+  if (Math.abs(prev - pct) > 0.1) {
+    clinicalBar.classList.remove("progress-glow");
+    void clinicalBar.offsetWidth;
+    clinicalBar.classList.add("progress-glow");
+  }
+  
   if (
     pct !== null &&
     classesNeeded(att, tot, setupData.clinical.minPercent) === 0 &&
@@ -362,7 +414,14 @@ function updateOverall(subjects, overall) {
   }
 
   const o = overall.reduce((a, b) => a + b, 0) / overall.length;
-  overallPercentEl.textContent = o.toFixed(1) + "%";
+  const prev = parseFloat(overallPercentEl.textContent) || 0;
+  animateNumber(overallPercentEl, prev, o);
+
+  overallPercentEl.classList.remove("pop");
+  void overallPercentEl.offsetWidth;
+  overallPercentEl.classList.add("pop");
+
+
   overallPercentEl.className = color(o);
 
   overallStatusEl.textContent =
@@ -373,16 +432,29 @@ function updateOverall(subjects, overall) {
 
   if (subjects.length) {
     const s = subjects.reduce((a, b) => a + b, 0) / subjects.length;
-    subjectsPercentEl.textContent = s.toFixed(1) + "%";
+    const prevSub = parseFloat(subjectsPercentEl.textContent) || 0;
+    animateNumber(subjectsPercentEl, prevSub, s);
+
+    subjectsPercentEl.classList.remove("pop");
+    void subjectsPercentEl.offsetWidth;
+    subjectsPercentEl.classList.add("pop");
+
     subjectsBar.className = "progress " + color(s);
     subjectsBar.firstChild.style.width = s + "%";
+
+    if (Math.abs(prevSub - s) > 0.1) {
+      subjectsBar.classList.remove("progress-glow");
+      void subjectsBar.offsetWidth;
+      subjectsBar.classList.add("progress-glow");
+    }
+
   }
 }
 
 
 document.addEventListener("click", e => {
   if (!e.target.classList.contains("edit-btn")) return;
-
+  haptic("medium");
   const input = e.target.previousElementSibling;
   input.removeAttribute("readonly");
   input.focus();
@@ -402,9 +474,10 @@ if (localStorage.getItem("dailyReminder") === "true") {
 }
 
 reminderToggle?.addEventListener("change", () => {
+  haptic("light");
   if (reminderToggle.checked) {
     localStorage.setItem("dailyReminder", "true");
-    alert("Daily reminder enabled ✅\n(Shown when you open the app)");
+    showToast("Daily reminder enabled ✅\n(Shown when you open the app)");
   } else {
     localStorage.removeItem("dailyReminder");
   }
@@ -430,12 +503,24 @@ function showDailyReminderIfNeeded() {
     (pref === "morning" && isMorning) ||
     (pref === "evening" && isEvening)
   ) {
-    alert("🔔 Reminder: Don’t forget to update today’s attendance 📋");
+    showToast("🔔 Reminder: Don’t forget to update today’s attendance 📋");
     localStorage.setItem("lastReminderDate", today);
   }
 }
 
 
+
+function haptic(type = "light") {
+  if (!("vibrate" in navigator)) return;
+
+  const patterns = {
+    light: 10,
+    medium: 20,
+    heavy: 30
+  };
+
+  navigator.vibrate(patterns[type] || 10);
+}
 
 // ===============================
 // Init
