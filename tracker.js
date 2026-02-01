@@ -8,6 +8,13 @@ if (!setupData) {
 }
 
 
+if (!localStorage.getItem("theme")) {
+  localStorage.setItem("theme", "dark");
+}
+document.body.classList.toggle(
+  "dark",
+  localStorage.getItem("theme") !== "light"
+);
 
 // ===============================
 // Dark Mode Toggle
@@ -36,11 +43,54 @@ function triggerGlow(bar) {
   void bar.offsetWidth; // force reflow
   bar.classList.add("progress-glow");
 }
+
+function bindSteppers() {
+  document.querySelectorAll(".stepper input").forEach(input => {
+    if (!input.dataset.swipeBound) {
+      addSwipeStepper(input);
+      input.dataset.swipeBound = "true";
+    }
+  });
+}
+
+
 function safePercent(att, tot) {
   if (att === null || tot === null || tot === 0) return null;
   return Math.min((att / tot) * 100, 100);
 }
+function addSwipeStepper(input, min = 0, max = 999) {
+  let startX = null;
+  let lastValue = parseInt(input.value || 0);
 
+  input.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    lastValue = parseInt(input.value || 0);
+  }, { passive: true });
+
+  input.addEventListener("touchmove", e => {
+    if (startX === null) return;
+
+    const deltaX = e.touches[0].clientX - startX;
+
+    // threshold to avoid accidental changes
+    if (Math.abs(deltaX) < 20) return;
+
+    let newValue = lastValue + (deltaX > 0 ? 1 : -1);
+    newValue = Math.max(min, Math.min(max, newValue));
+
+    input.value = newValue;
+    input.dispatchEvent(new Event("input"));
+
+    if (navigator.vibrate) navigator.vibrate([4, 8]);
+
+    startX = e.touches[0].clientX;
+    lastValue = newValue;
+  }, { passive: true });
+
+  input.addEventListener("touchend", () => {
+    startX = null;
+  });
+}
 
 function weeksBetween(start, end) {
   return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7)));
@@ -202,7 +252,9 @@ function renderSubjects() {
     `;
 
     subjectsTracker.appendChild(div);
+
   });
+  bindSteppers();
 }
 
 // ===============================
@@ -233,7 +285,7 @@ function calculate() {
     tTot = clampTotal(tAtt, tTot);
     tTotInput.value = tTot;
 
-    const tPct = safePercent(tAtt === "" ? null : Number(tAtt), tTot);
+    const tPct = safePercent(tAtt, tTot)
 
     updateBlock(`t`, i, tPct, tAtt, tTot, s.minPercent);
     if (tPct !== null) parts.push(tPct);
@@ -252,7 +304,7 @@ function calculate() {
       pTot = clampTotal(pAtt, pTot);
       pTotInput.value = pTot;
 
-      const pPct = safePercent(pAtt === "" ? null : Number(pAtt), pTot);
+      const pPct = safePercent(pAtt, pTot)
 
       updateBlock(`p`, i, pPct, pAtt, pTot, s.minPercent);
       if (pPct !== null) parts.push(pPct);
@@ -470,11 +522,6 @@ function updateOverall(subjects, overall) {
     subjectsBar.firstChild.style.width = s + "%";
     triggerGlow(subjectsBar);
 
-    if (Math.abs(prevSub - s) > 0.1) {
-      subjectsBar.classList.remove("progress-glow");
-      void subjectsBar.offsetWidth;
-      subjectsBar.classList.add("progress-glow");
-    }
 
   }
 }
@@ -568,6 +615,7 @@ const weeks = weeksBetween(new Date(setupData.startDate), new Date());
 clinicalTot.value = weeks * setupData.clinical.daysPerWeek;
 
 renderSubjects();
+bindSteppers();
 document.addEventListener("input", calculate);
 calculate();
 showDailyReminderIfNeeded();

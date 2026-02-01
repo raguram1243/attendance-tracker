@@ -878,25 +878,30 @@ button:active,
 }
 
 .stepper {
-  display: flex;
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .stepper input {
-  flex: 1;
+  height: 42px;
   text-align: center;
   font-size: 16px;
+  border-radius: 14px;
 }
 
 .stepper button {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  font-size: 18px;
-  font-weight: 600;
-  background: rgba(255,255,255,0.08);
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
+  cursor: pointer;
 }
 
 body.dark .stepper button {
