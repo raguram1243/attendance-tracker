@@ -107,8 +107,7 @@ const clinicalNeedEl = $("#clinicalNeed");
 const clinicalAtt = $("#clinicalAttended");
 const clinicalTot = $("#clinicalTotal");
 const clinicalPctEl = $("#clinicalPercent");
-// Firebase Messaging (foreground token)
-const messaging = firebase.messaging();
+
 
 
 $("#editSetupBtn")?.addEventListener("click", () => {
@@ -454,11 +453,6 @@ function showDailyReminderIfNeeded() {
 }
 
 
-fetch("https://YOUR_PROJECT_ID.cloudfunctions.net/saveToken", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ token })
-});
 
 // ===============================
 // Init
