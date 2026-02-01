@@ -452,6 +452,9 @@ header.app-header {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(180deg, #020617, #020617);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 /* iOS safe area */
@@ -546,30 +549,34 @@ body {
    ========================= */
 
    body.dark {
-    --bg: #0b1220;            /* deep navy */
-    --card: #111a2e;          /* lifted card */
-    --card-soft: #0f172a;
+    --bg: #020617;              /* pure deep navy */
+    --card: #0b1220;            /* card base */
+    --card-soft: #111827;
     --text: #e5e7eb;
-    --muted: #9ca3af;
+    --muted: #94a3b8;
     --border: rgba(255,255,255,0.08);
   }
   
+  
   /* background */
   body.dark {
-    background: linear-gradient(180deg, #0b1220, #020617);
-    color: var(--text);
+    background: radial-gradient(
+      1200px 600px at top,
+      #0b1220,
+      #020617
+    );
   }
+  
   
   /* cards */
   body.dark .card {
-    background: linear-gradient(
-      180deg,
-      #111a2e,
-      #0b1220
-    );
+    background: linear-gradient(180deg, #0b1220, #020617);
     border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(255,255,255,0.04);
   }
+  
   
   /* subject cards slightly lifted */
   body.dark .subject-card {
@@ -582,11 +589,16 @@ body {
   
   /* inputs */
   body.dark input {
-    background: #020617;
-    border-color: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
     color: #e5e7eb;
   }
   
+  body.dark input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+  }
+
   body.dark input::placeholder {
     color: #6b7280;
   }
@@ -599,9 +611,11 @@ body {
   
   /* progress bar background */
   body.dark .progress {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.15);
   }
-  
+  .progress.green > div { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.progress.yellow > div { background: linear-gradient(90deg, #facc15, #eab308); }
+.progress.red > div { background: linear-gradient(90deg, #f87171, #dc2626); }
   /* section titles */
   body.dark h3 {
     color: #f9fafb;
@@ -627,19 +641,21 @@ body {
    DAILY REMINDER TOGGLE
    ========================= */
 
-.reminder-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.03);
-}
-
-body.dark .reminder-row {
-  background: rgba(255,255,255,0.05);
-}
+   .reminder-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(0,0,0,0.04);
+  }
+  
+  body.dark .reminder-row {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  
 
 .reminder-title {
   font-size: 14px;
@@ -710,6 +726,18 @@ body.dark .reminder-row {
   font-weight: 600;
 }
 
+.reminder-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.reminder-time {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+}
 
  
   

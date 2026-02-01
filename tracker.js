@@ -27,23 +27,6 @@ toggleBtn?.addEventListener("click", () => {
   toggleBtn.textContent = isDark ? "☀️" : "🌙";
 });
 
-async function enableDailyReminder() {
-  if (!("Notification" in window)) {
-    alert("Notifications not supported on this device");
-    return;
-  }
-
-  const permission = await Notification.requestPermission();
-
-  if (permission === "granted") {
-    localStorage.setItem("dailyReminder", "true");
-    alert("Daily reminder enabled ✅\n(Works after app install)");
-  } else {
-    alert("Notification permission denied");
-  }
-}
-
-
 // ===============================
 // Helpers
 // ===============================
