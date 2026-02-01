@@ -37,6 +37,53 @@ toggleBtn?.addEventListener("click", () => {
 // ===============================
 // Helpers
 // ===============================
+function saveState() {
+  const data = {
+    subjects: [],
+    clinical: {
+      attended: document.getElementById("clinicalAttended")?.value || "",
+      total: document.getElementById("clinicalTotal")?.value || ""
+    }
+  };
+
+  document.querySelectorAll(".subject-card").forEach((card, i) => {
+    const theoryAtt = card.querySelector('[data-t="theory-att"] input')?.value || "";
+    const theoryTot = card.querySelector('[data-t="theory-tot"]')?.value || "";
+    const pracAtt = card.querySelector('[data-t="p-att"] input')?.value || "";
+    const pracTot = card.querySelector('[data-t="p-tot"]')?.value || "";
+
+    data.subjects.push({
+      theoryAtt,
+      theoryTot,
+      pracAtt,
+      pracTot
+    });
+  });
+
+  localStorage.setItem("attendanceData", JSON.stringify(data));
+}
+function restoreState() {
+  const raw = localStorage.getItem("attendanceData");
+  if (!raw) return;
+
+  const data = JSON.parse(raw);
+
+  document.querySelectorAll(".subject-card").forEach((card, i) => {
+    const s = data.subjects[i];
+    if (!s) return;
+
+    card.querySelector('[data-t="theory-att"] input').value = s.theoryAtt;
+    card.querySelector('[data-t="theory-tot"]').value = s.theoryTot;
+    card.querySelector('[data-t="p-att"] input').value = s.pracAtt;
+    card.querySelector('[data-t="p-tot"]').value = s.pracTot;
+  });
+
+  document.getElementById("clinicalAttended").value = data.clinical.attended;
+  document.getElementById("clinicalTotal").value = data.clinical.total;
+}
+
+
+
 const $ = q => document.querySelector(q);
 function triggerGlow(bar) {
   bar.classList.remove("progress-glow");
@@ -263,7 +310,6 @@ function renderSubjects() {
 function calculate() {
   let subjectAvgs = [];
   let overallAvgs = [];
-  haptic("light");
 
   setupData.subjects.forEach((s, i) => {
     let parts = [];
@@ -330,6 +376,7 @@ function calculate() {
   updateClinical(cPct, cAtt, cTot);
 
   updateOverall(subjectAvgs, overallAvgs);
+  saveState();
 }
 
 // ===============================
@@ -612,10 +659,13 @@ function haptic(type = "light") {
 // Init
 // ===============================
 const weeks = weeksBetween(new Date(setupData.startDate), new Date());
-clinicalTot.value = weeks * setupData.clinical.daysPerWeek;
+if (!localStorage.getItem("attendanceData")) {
+  clinicalTot.value = weeks * setupData.clinical.daysPerWeek;
+}
+
 
 renderSubjects();
-bindSteppers();
+restoreState(); 
 document.addEventListener("input", calculate);
 calculate();
 showDailyReminderIfNeeded();
