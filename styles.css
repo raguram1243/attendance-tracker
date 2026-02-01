@@ -444,6 +444,101 @@ body.dark .no-practical-badge {
     height: 20px;
   }
 }
+header.app-header {
+  height: 56px;                /* fixed height */
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* iOS safe area */
+@supports (padding-top: env(safe-area-inset-top)) {
+  header.app-header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(56px + env(safe-area-inset-top));
+  }
+}
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.theme-toggle:active {
+  transform: scale(0.92);
+  background: rgba(255,255,255,0.16);
+}
+.subject-card {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* title stronger */
+.subject-card strong {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 6px;
+}
+@media (max-width: 420px) {
+  .inputs {
+    flex-wrap: wrap;
+  }
+
+  .inputs input[type="number"] {
+    flex: 1 1 100%;
+  }
+
+  .total-box {
+    margin-top: 6px;
+  }
+}
+.need {
+  opacity: 0.75;
+  font-weight: 500;
+}
+.need.safe {
+  opacity: 1;
+  font-weight: 600;
+}
+.progress {
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+@media (max-width: 480px) {
+  .checkbox-row {
+    padding: 8px 0;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+
+  .checkbox-row label {
+    font-size: 14px;
+  }
+}
+body {
+  padding-bottom: 140px; /* was 110px */
+}
+
+/* iOS safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  }
+}
+
 
 
  
