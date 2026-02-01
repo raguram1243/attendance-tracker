@@ -37,6 +37,136 @@ toggleBtn?.addEventListener("click", () => {
 // ===============================
 // Helpers
 // ===============================
+function launchConfetti() {
+  const confetti = document.getElementById("confetti");
+  confetti.innerHTML = "";
+
+  const colors = ["#22c55e", "#3b82f6", "#facc15", "#ec4899"];
+
+  for (let i = 0; i < 28; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "%";
+    piece.style.background =
+      colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 0.3 + "s";
+
+    confetti.appendChild(piece);
+  }
+
+  setTimeout(() => (confetti.innerHTML = ""), 1800);
+}
+
+function dangerFlash() {
+  const modal = document.getElementById("skipResultModal");
+  modal.classList.add("danger-flash");
+
+  setTimeout(() => {
+    modal.classList.remove("danger-flash");
+  }, 600);
+}
+
+
+function openTodaySelector() {
+  const list = document.getElementById("todaySubjects");
+  list.innerHTML = "";
+
+  setupData.subjects.forEach((s, i) => {
+    // Theory
+    list.innerHTML += `
+      <div class="today-item" data-i="${i}" data-type="theory">
+        <span class="label-text">${s.name} (Theory)</span>
+        <span class="check-icon">✓</span>
+        <input type="checkbox" hidden>
+      </div>
+    `;
+
+    // Practical
+    if (s.hasPractical) {
+      list.innerHTML += `
+        <div class="today-item" data-i="${i}" data-type="practical">
+          <span class="label-text">${s.name} (Practical)</span>
+          <span class="check-icon">✓</span>
+          <input type="checkbox" hidden>
+        </div>
+      `;
+    }
+  });
+
+  document.getElementById("skipModal").classList.remove("hidden");
+}
+
+
+function showSkipResult(type, message) {
+  const gif = document.getElementById("resultGif");
+  gif.style.display = "none";
+  gif.src = "";
+
+  const modal = document.getElementById("skipResultModal");
+  const card = modal.querySelector(".modal-card");
+
+  card.classList.remove("result-safe", "result-warn", "result-danger");
+  void card.offsetWidth; // force reflow (restart animation)
+  
+  if (type === "safe") {
+    card.classList.add("result-safe");
+    launchConfetti();
+  }
+  
+  if (type === "warn") {
+    card.classList.add("result-warn");
+  
+    gif.src = "assets/risky.gif";   // ⚠️ your risky GIF
+    gif.style.display = "block";
+  }
+  
+  if (type === "danger") {
+    card.classList.add("result-danger");
+    dangerFlash();
+  
+    gif.src = "assets/danger.gif";  // ❌ your danger GIF
+    gif.style.display = "block";
+  }
+  
+  
+  
+
+  document.getElementById("skipResultTitle").textContent =
+    type === "safe" ? "✅ Safe to Skip" :
+    type === "warn" ? "⚠️ Risky to Skip" :
+    "❌ Don’t Skip Today";
+
+  document.getElementById("skipResultText").textContent = message;
+
+  modal.classList.remove("hidden");
+}
+
+document.getElementById("closeSkipResult")
+  ?.addEventListener("click", () => {
+    const modal = document.getElementById("skipResultModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("danger-flash");
+
+    const confetti = document.getElementById("confetti");
+    if (confetti) confetti.innerHTML = "";
+
+    const gif = document.getElementById("resultGif");
+    if (gif) {
+      gif.src = "";
+      gif.style.display = "none";
+    }
+  });
+
+
+
+document.getElementById("skipResultModal")
+  ?.addEventListener("click", e => {
+    if (e.target.id === "skipResultModal") {
+      e.currentTarget.classList.add("hidden");
+    }
+  });
+
+
 function saveState() {
   const data = {
     subjects: [],
@@ -62,6 +192,7 @@ function saveState() {
 
   localStorage.setItem("attendanceData", JSON.stringify(data));
 }
+
 function restoreState() {
   const raw = localStorage.getItem("attendanceData");
   if (!raw) return;
@@ -72,15 +203,26 @@ function restoreState() {
     const s = data.subjects[i];
     if (!s) return;
 
-    card.querySelector('[data-t="theory-att"] input').value = s.theoryAtt;
-    card.querySelector('[data-t="theory-tot"]').value = s.theoryTot;
-    card.querySelector('[data-t="p-att"] input').value = s.pracAtt;
-    card.querySelector('[data-t="p-tot"]').value = s.pracTot;
+    const tAtt = card.querySelector('[data-t="theory-att"] input');
+    const tTot = card.querySelector('[data-t="theory-tot"]');
+
+    if (tAtt) tAtt.value = s.theoryAtt;
+    if (tTot) tTot.value = s.theoryTot;
+
+    const pAtt = card.querySelector('[data-t="p-att"] input');
+    const pTot = card.querySelector('[data-t="p-tot"]');
+
+    if (pAtt) pAtt.value = s.pracAtt;
+    if (pTot) pTot.value = s.pracTot;
   });
 
-  document.getElementById("clinicalAttended").value = data.clinical.attended;
-  document.getElementById("clinicalTotal").value = data.clinical.total;
+  const cAtt = document.getElementById("clinicalAttended");
+  const cTot = document.getElementById("clinicalTotal");
+
+  if (cAtt) cAtt.value = data.clinical.attended;
+  if (cTot) cTot.value = data.clinical.total;
 }
+
 
 
 
@@ -576,8 +718,17 @@ function updateOverall(subjects, overall) {
 
 document.addEventListener("click", e => {
   if (!e.target.classList.contains("edit-btn")) return;
+
   haptic("medium");
+
   const input = e.target.previousElementSibling;
+  if (!input) return;
+
+  // mark clinical total edited
+  if (input.id === "clinicalTotal") {
+    localStorage.setItem("clinicalTotalEdited", "true");
+  }
+
   input.removeAttribute("readonly");
   input.focus();
 
@@ -587,6 +738,7 @@ document.addEventListener("click", e => {
     { once: true }
   );
 });
+
 
 
 const reminderToggle = document.getElementById("dailyReminderToggle");
@@ -654,18 +806,108 @@ function haptic(type = "light") {
   );
 }
 
+const skipBtn = document.getElementById("skipBtn");
+skipBtn.addEventListener("click", () => {
+  haptic("medium");
+  openTodaySelector();
+});
+
+// Toggle selection for today's class cards
+document.addEventListener("click", e => {
+  const item = e.target.closest(".today-item");
+  if (!item) return;
+
+  const checkbox = item.querySelector("input");
+  checkbox.checked = !checkbox.checked;
+
+  item.classList.toggle("selected", checkbox.checked);
+});
+
+
+document.getElementById("confirmSkip")
+  ?.addEventListener("click", () => {
+    haptic("medium");
+
+    let reasons = [];
+
+    document
+      .querySelectorAll('#todaySubjects .today-item.selected')
+      .forEach(item => {
+        const i = item.dataset.i;
+        const type = item.dataset.type;
+        const subject = setupData.subjects[i];
+
+        const attInput = document.querySelector(
+          `.stepper[data-i="${i}"][data-t="${type === "theory" ? "theory-att" : "p-att"}"] input`
+        );
+
+        const totInput = document.querySelector(
+          `[data-i="${i}"][data-t="${type === "theory" ? "theory-tot" : "p-tot"}"]`
+        );
+
+        const att = attInput?.value === "" ? null : Number(attInput.value);
+        const tot = Number(totInput?.value || 0);
+
+        if (willSkippingTodayBeDanger(att, tot, subject.minPercent)) {
+          reasons.push(`${subject.name} (${type})`);
+        }
+      });
+
+    // Clinical
+    if (document.getElementById("todayClinical")?.checked) {
+      const cAtt = clinicalAtt.value === "" ? null : Number(clinicalAtt.value);
+      const cTot = Number(clinicalTot.value || 0);
+
+      if (willSkippingTodayBeDanger(cAtt, cTot, setupData.clinical.minPercent)) {
+        reasons.push("Clinical Posting");
+      }
+    }
+
+    document.getElementById("skipModal").classList.add("hidden");
+
+    if (!reasons.length) {
+      showSkipResult(
+        "safe",
+        "No problem cut Adikalam."
+      );
+    } else if (reasons.length <= 2) {
+      showSkipResult(
+        "warn",
+        "Skipping today may affect:\n" + reasons.join(", ")
+      );
+    } else {
+      showSkipResult(
+        "danger",
+        "Attendance will fall below the minimum requirement.\n Dai Paramaa poi padi daa !!"
+      );
+    }
+    
+  });
+
+
+
 
 // ===============================
 // Init
 // ===============================
 const weeks = weeksBetween(new Date(setupData.startDate), new Date());
-if (!localStorage.getItem("attendanceData")) {
-  clinicalTot.value = weeks * setupData.clinical.daysPerWeek;
-}
-
 
 renderSubjects();
-restoreState(); 
-document.addEventListener("input", calculate);
-calculate();
+requestAnimationFrame(() => {
+  restoreState(); 
+  calculate();
+});
+
+
+const clinicalEdited = localStorage.getItem("clinicalTotalEdited") === "true";
+
+if (
+  !clinicalEdited &&
+  (
+    clinicalTot.value === "" ||
+    Number(clinicalTot.value) === 0
+  )
+) {
+  clinicalTot.value = weeks * setupData.clinical.daysPerWeek;
+}
 showDailyReminderIfNeeded();

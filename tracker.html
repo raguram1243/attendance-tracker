@@ -16,6 +16,50 @@
 </header>
 <div id="toast" class="toast"></div>
 
+
+<div id="skipModal" class="modal hidden">
+  <div class="modal-card">
+    <h3>📅 Today’s Classes</h3>
+
+    <!-- JS will inject items here -->
+    <div id="todaySubjects"></div>
+
+    <!-- Clinical Posting -->
+    <div class="today-item clinical" id="todayClinicalItem">
+      <span class="label-text">Clinical Posting</span>
+      <span class="check-icon">✓</span>
+      <input type="checkbox" id="todayClinical" hidden>
+    </div>
+
+    <button id="confirmSkip" class="primary full-width">
+      🚦 Can I Skip Today?
+    </button>
+  </div>
+</div>
+
+
+<!-- Skip Result Modal -->
+<div id="skipResultModal" class="modal hidden">
+
+  <div id="confetti"></div>
+
+  <div class="modal-card result-card">
+    <h3 id="skipResultTitle"></h3>
+
+    <!-- RESULT GIF -->
+    <img id="resultGif" class="result-gif" />
+
+    <p id="skipResultText"></p>
+
+    <button id="closeSkipResult" class="secondary">
+      OK
+    </button>
+  </div>
+</div>
+
+
+
+
 <body>
 
 

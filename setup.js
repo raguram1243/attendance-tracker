@@ -1,6 +1,9 @@
 // ===============================
 // Setup Page Logic (Refactored)
 // ===============================
+if (!localStorage.getItem("theme")) {
+  localStorage.setItem("theme", "dark");
+}
 
 // Elements
 const subjectsContainer = document.getElementById("subjectsContainer");
@@ -12,10 +15,13 @@ const saveSetupBtn = document.getElementById("saveSetupBtn");
 // ===============================
 const toggleBtn = document.getElementById("themeToggle");
 
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-  toggleBtn && (toggleBtn.textContent = "☀️");
-}
+document.body.classList.toggle(
+  "dark",
+  localStorage.getItem("theme") !== "light"
+);
+toggleBtn && (toggleBtn.textContent =
+  document.body.classList.contains("dark") ? "☀️" : "🌙"
+);
 
 toggleBtn?.addEventListener("click", () => {
   document.body.classList.toggle("dark");
@@ -37,6 +43,70 @@ function getDefaultMinPercent() {
 // -------------------------------
 // Subject Card
 // -------------------------------
+function saveSetupDraft() {
+  const draft = {
+    courseName: document.getElementById("courseName")?.value || "",
+    startDate: document.getElementById("startDate")?.value || "",
+    clinical: {
+      days: document.getElementById("clinicalDays")?.value || "",
+      hours: document.getElementById("clinicalHours")?.value || "",
+      minPercent: document.getElementById("clinicalMinPercent")?.value || ""
+    },
+    subjects: []
+  };
+
+  document.querySelectorAll(".subject-card").forEach(card => {
+    draft.subjects.push({
+      name: card.querySelector(".subject-name")?.value || "",
+      theory: card.querySelector(".theory-per-week")?.value || "",
+      practical: card.querySelector(".practical-per-week")?.value || "",
+      hasPractical: card.querySelector(".has-practical")?.checked || false,
+      minPercent: card.querySelector(".min-percent")?.value || ""
+    });
+  });
+
+  localStorage.setItem("setupDraft", JSON.stringify(draft));
+}
+
+function restoreSetupDraft() {
+  const raw = localStorage.getItem("setupDraft");
+  if (!raw) return;
+
+  const data = JSON.parse(raw);
+
+  document.getElementById("courseName").value = data.courseName || "";
+  document.getElementById("startDate").value = data.startDate || "";
+
+  document.getElementById("clinicalDays").value = data.clinical.days || "";
+  document.getElementById("clinicalHours").value = data.clinical.hours || "";
+  document.getElementById("clinicalMinPercent").value = data.clinical.minPercent || "";
+
+  subjectsContainer.innerHTML = "";
+
+  if (data.subjects.length === 0) {
+    subjectsContainer.appendChild(createSubjectCard());
+    return;
+  }
+
+  data.subjects.forEach(s => {
+    const card = createSubjectCard();
+    card.querySelector(".subject-name").value = s.name;
+    card.querySelector(".theory-per-week").value = s.theory;
+    card.querySelector(".practical-per-week").value = s.practical;
+    card.querySelector(".has-practical").checked = s.hasPractical;
+    card.querySelector(".min-percent").value = s.minPercent;
+
+    card.querySelector(".practical-wrapper")
+      .classList.toggle("open", s.hasPractical);
+
+    card.querySelector(".no-practical-badge")
+      .classList.toggle("hidden", s.hasPractical);
+
+    subjectsContainer.appendChild(card);
+  });
+}
+
+
 function createSubjectCard() {
   const card = document.createElement("div");
   card.className = "subject-card";
@@ -72,8 +142,6 @@ function createSubjectCard() {
   `;
 
   const practicalCheckbox = card.querySelector(".has-practical");
-  const practicalInput = card.querySelector(".practical-input");
-
   const practicalWrapper = card.querySelector(".practical-wrapper");
 
   const badge = card.querySelector(".no-practical-badge");
@@ -170,6 +238,7 @@ saveSetupBtn.addEventListener("click", () => {
       minPercent: Number(clinicalMinPercent)
     }
   };
+  localStorage.removeItem("setupDraft");
 
   localStorage.setItem("attendanceSetup", JSON.stringify(setupData));
   window.location.href = "tracker.html";
@@ -178,6 +247,18 @@ saveSetupBtn.addEventListener("click", () => {
 // -------------------------------
 // Init
 // -------------------------------
+document.addEventListener("input", e => {
+  if (
+    e.target.closest(".subject-card") ||
+    e.target.closest(".card")
+  ) {
+    saveSetupDraft();
+  }
+});
+
+restoreSetupDraft();
+
 if (subjectsContainer.children.length === 0) {
   subjectsContainer.appendChild(createSubjectCard());
 }
+
