@@ -7,6 +7,8 @@ if (!setupData) {
   window.location.href = "setup.html";
 }
 
+
+
 // ===============================
 // Dark Mode Toggle
 // ===============================
@@ -24,6 +26,22 @@ toggleBtn?.addEventListener("click", () => {
   localStorage.setItem("theme", isDark ? "dark" : "light");
   toggleBtn.textContent = isDark ? "☀️" : "🌙";
 });
+
+async function enableDailyReminder() {
+  if (!("Notification" in window)) {
+    alert("Notifications not supported on this device");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+
+  if (permission === "granted") {
+    localStorage.setItem("dailyReminder", "true");
+    alert("Daily reminder enabled ✅\n(Works after app install)");
+  } else {
+    alert("Notification permission denied");
+  }
+}
 
 
 // ===============================
@@ -67,6 +85,12 @@ function maxMissable(att, tot, min) {
   return miss > 0 ? miss : 0;
 }
 
+function willSkippingTodayBeDanger(att, tot, min) {
+  if (att === null || tot === 0) return false;
+  const pctIfSkipped = (att / (tot + 1)) * 100;
+  return pctIfSkipped < min;
+}
+
 
 
 // ===============================
@@ -83,10 +107,22 @@ const clinicalNeedEl = $("#clinicalNeed");
 const clinicalAtt = $("#clinicalAttended");
 const clinicalTot = $("#clinicalTotal");
 const clinicalPctEl = $("#clinicalPercent");
+// Firebase Messaging (foreground token)
+const messaging = firebase.messaging();
 
 
 $("#editSetupBtn")?.addEventListener("click", () => {
   window.location.href = "setup.html";
+});
+
+document.querySelectorAll('input[name="reminderTime"]').forEach(radio => {
+  if (radio.value === localStorage.getItem("reminderTime")) {
+    radio.checked = true;
+  }
+
+  radio.addEventListener("change", () => {
+    localStorage.setItem("reminderTime", radio.value);
+  });
 });
 
 // ===============================
@@ -258,16 +294,26 @@ function updateBlock(prefix, i, pct, att, tot, min) {
     needEl.className = "need";
   }
 
-  const missEl = document.getElementById(`${prefix}Miss-${i}`);
-const miss = maxMissable(att, tot, min);
+  if (
+    pct !== null &&
+    classesNeeded(att, tot, min) === 0 &&
+    willSkippingTodayBeDanger(att, tot, min)
+  ) {
+    needEl.textContent = "⚠️ Skipping today will make you unsafe";
+    needEl.className = "need warn";
+  }
+  
 
-if (missEl) {
+  const missEl = document.getElementById(`${prefix}Miss-${i}`);
+  const miss = maxMissable(att, tot, min);
+
+  if (missEl) {
   if (miss > 0) {
     missEl.textContent = `You can miss ${miss} classes`;
   } else {
     missEl.textContent = "";
   }
-}
+  }
 
 }
 
@@ -296,16 +342,31 @@ function updateClinical(pct, att, tot) {
     clinicalNeedEl.textContent = `Need ${need} days`;
     clinicalNeedEl.className = "need warn";
   }
-  const missEl = document.getElementById("clinicalMiss");
-const miss = maxMissable(att, tot, setupData.clinical.minPercent);
 
-if (missEl) {
+  if (
+    pct !== null &&
+    classesNeeded(att, tot, setupData.clinical.minPercent) === 0 &&
+    willSkippingTodayBeDanger(
+      att,
+      tot,
+      setupData.clinical.minPercent
+    )
+  ) {
+    clinicalNeedEl.textContent = "⚠️ Skipping today is risky";
+    clinicalNeedEl.className = "need warn";
+  }
+
+  
+  const missEl = document.getElementById("clinicalMiss");
+  const miss = maxMissable(att, tot, setupData.clinical.minPercent);
+
+  if (missEl) {
   if (miss > 0) {
     missEl.textContent = `You can miss ${miss} days`;
   } else {
     missEl.textContent = "";
   }
-}
+  }
 
 }
 
@@ -351,6 +412,54 @@ document.addEventListener("click", e => {
   );
 });
 
+
+const reminderToggle = document.getElementById("dailyReminderToggle");
+
+if (localStorage.getItem("dailyReminder") === "true") {
+  reminderToggle.checked = true;
+}
+
+reminderToggle?.addEventListener("change", () => {
+  if (reminderToggle.checked) {
+    localStorage.setItem("dailyReminder", "true");
+    alert("Daily reminder enabled ✅\n(Shown when you open the app)");
+  } else {
+    localStorage.removeItem("dailyReminder");
+  }
+});
+
+
+function showDailyReminderIfNeeded() {
+  if (localStorage.getItem("dailyReminder") !== "true") return;
+
+  const now = new Date();
+  const hour = now.getHours();
+  const today = now.toDateString();
+
+  const lastShown = localStorage.getItem("lastReminderDate");
+  if (lastShown === today) return;
+
+  const pref = localStorage.getItem("reminderTime") || "morning";
+
+  const isMorning = hour >= 6 && hour < 11;
+  const isEvening = hour >= 18 && hour < 22;
+
+  if (
+    (pref === "morning" && isMorning) ||
+    (pref === "evening" && isEvening)
+  ) {
+    alert("🔔 Reminder: Don’t forget to update today’s attendance 📋");
+    localStorage.setItem("lastReminderDate", today);
+  }
+}
+
+
+fetch("https://YOUR_PROJECT_ID.cloudfunctions.net/saveToken", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ token })
+});
+
 // ===============================
 // Init
 // ===============================
@@ -360,3 +469,4 @@ clinicalTot.value = weeks * setupData.clinical.daysPerWeek;
 renderSubjects();
 document.addEventListener("input", calculate);
 calculate();
+showDailyReminderIfNeeded();
